@@ -1,0 +1,5 @@
+digraph Tree {
+node [shape=box, fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label="gini = 0.473\nsamples = 891\nvalue = [549, 342]"] ;
+}
