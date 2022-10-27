@@ -131,63 +131,32 @@ def one_hot_encoding(data: dict, feature: str):
 	#          TODO:           #
 	#                          #
 	############################
-	sex_0 = []
-	sex_1 = []
-	for sex in data["Sex"]:
-		if sex == 0:
-			sex_0.append(1)
-			sex_1.append(0)
-		else:
-			sex_0.append(0)
-			sex_1.append(1)
-	data["Sex_0"] = sex_0
-	data["Sex_1"] = sex_1
-	if 'Sex' in data:
-		del data['Sex']
+	unique_value = []
+	new_list = []
+	# 找出value中獨特value的數量
+	for word in data[feature]:
+		if word not in unique_value:
+			unique_value.append(word)
+	unique_value = sorted(unique_value)
+	# 依數量建構list
+	for i in range(len(unique_value)):
+		new_list.append([])
 
-	embarked_0 = []
-	embarked_1 = []
-	embarked_2 = []
-	for embarked in data["Embarked"]:
-		if embarked == 0:
-			embarked_0.append(1)
-			embarked_1.append(0)
-			embarked_2.append(0)
-		elif embarked == 1 :
-			embarked_0.append(0)
-			embarked_1.append(1)
-			embarked_2.append(0)
-		else:
-			embarked_0.append(0)
-			embarked_1.append(0)
-			embarked_2.append(1)
-	data["Embarked_0"] = embarked_0
-	data["Embarked_1"] = embarked_1
-	data["Embarked_2"] = embarked_2
-	if 'Embarked' in data:
-		del data['Embarked']
+	# 加入序列
+	for word in data[feature]:
+		index = unique_value.index(word)
+		for i in range(len(new_list)):
+			if i == index:
+				new_list[i].append(1)
+			else:
+				new_list[i].append(0)
 
-	pclass_0 = []
-	pclass_1 = []
-	pclass_2 = []
-	for pclass in data["Pclass"]:
-		if pclass == 1:
-			pclass_0.append(1)
-			pclass_1.append(0)
-			pclass_2.append(0)
-		elif pclass == 2:
-			pclass_0.append(0)
-			pclass_1.append(1)
-			pclass_2.append(0)
-		else:
-			pclass_0.append(0)
-			pclass_1.append(0)
-			pclass_2.append(1)
-	data["Pclass_0"] = pclass_0
-	data["Pclass_1"] = pclass_1
-	data["Pclass_2"] = pclass_2
-	if 'Pclass' in data:
-		del data['Pclass']
+	# 合併序列
+	for i in range(len(new_list)):
+		data[feature + "_" + str(i)] = new_list[i]
+
+	#刪除舊序列
+	del data[feature]
 
 	return data
 
@@ -235,11 +204,10 @@ def learnPredictor(inputs: dict, labels: list, degree: int, num_epochs: int, alp
 	# TODO:
 	for epoch in range(num_epochs):
 		if degree == 1:
-			feature = []
-			for i in range(len(inputs[0])):
+			for i in range(len(inputs[keys[0]])):
 				feature = []
-				for keys in inputs:
-					feature.append(inputs[keys][i])
+				for key in inputs:
+					feature.append(inputs[key][i])
 				h = 1/(1 + math.exp(-(util.dotProduct(weights, feature))))
 				weights = util.increment(weights, -alpha*(h-labels[i]), feature)
 
@@ -252,5 +220,18 @@ def learnPredictor(inputs: dict, labels: list, degree: int, num_epochs: int, alp
 	# Step 4 : Update weights
 	# TODO:
 	return weights
+
+def test5_0():
+    ans = 0.8104
+    train_data = data_preprocess('titanic_data/train.csv', {})
+    train_data = one_hot_encoding(train_data, 'Sex')
+    train_data = one_hot_encoding(train_data, 'Pclass')
+    train_data = one_hot_encoding(train_data, 'Embarked')
+    labels = train_data.pop('Survived')
+    labels = list(int(labels[i]) for i in range(len(labels)))
+    train_data = normalize(train_data)
+    weights = learnPredictor(train_data, labels, 1, 100, 0.1)
+
+test5_0()
 
 data_preprocess("titanic_data/train.csv",{})
