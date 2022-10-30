@@ -76,7 +76,6 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
     ##
     for epoch in range(numEpochs):
         # cost = 0
-
         for x, y in trainExamples:
             # y = 0, if y <0 else 1
             phi_x = featureExtractor(x)
