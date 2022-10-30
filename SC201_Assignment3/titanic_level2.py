@@ -34,8 +34,16 @@ def data_preprocess(filename, mode='Train', training_data=None):
 	#                              #
 	################################
 	if mode == 'Train':
+		data = data[['Survived', 'Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']]
+		data.dropna(inplace=True)
+		labels = data['Survived']
+		data = data.drop(columns=['Survived'])
 		return data, labels
 	elif mode == 'Test':
+		data = data[[ 'Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']]
+		columns = data.columns
+		for column in columns:
+			data.column.fillna(column.mean())
 		return data
 
 
@@ -50,6 +58,8 @@ def one_hot_encoding(data, feature):
 	#          TODO:           #
 	#                          #
 	############################
+	data = pd.get_dumnies(data,columns = ['Sex', 'Pclass', 'Embarked'], drop_first = True)
+	print(data.count())
 	return data
 
 
