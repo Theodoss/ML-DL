@@ -160,6 +160,7 @@ def one_hot_encoding(data: dict, feature: str):
     del data[feature]
 
     return data
+	
 
 
 def normalize(data: dict):
