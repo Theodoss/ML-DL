@@ -28,11 +28,11 @@ from collections import defaultdict
 import numpy as np
 
 # Constants
-TRAIN = 'titanic_data/train.csv'     # This is the filename of interest
-NUM_EPOCHS = 40000                   # This constant controls the total number of epochs
-ALPHA = 0.01                         # This constant controls the learning rate α
-L = 5                                # This number controls the number of layers in NN
-NODES = {                            # This Dict[str: int] controls the number of nodes in each layer
+TRAIN = 'titanic_data/train.csv'  # This is the filename of interest
+NUM_EPOCHS = 40000  # This constant controls the total number of epochs
+ALPHA = 0.01  # This constant controls the learning rate α
+L = 5  # This number controls the number of layers in NN
+NODES = {  # This Dict[str: int] controls the number of nodes in each layer
     'N0': 6,
     'N1': 5,
     'N2': 4,
@@ -58,6 +58,7 @@ def main():
     #              TODO:               #
     #                                  #
     ####################################
+    neural_network(X, Y)
 
 
 def normalize(X):
@@ -83,24 +84,63 @@ def neural_network(X, Y):
     np.random.seed(1)
     weights = {}
     biases = {}
+    K_dict = {}
+    A_dict = {}
 
     # Initialize all the weights and biases
+    for i in range(1,len(NODES)):
+        weights['W' + str(i)] = np.random.rand(NODES['N' + str(i-1)], NODES['N' + str(i)]) - 0.5
+        biases['B' + str(i)] = np.random.rand(NODES['N' + str(i)], 1) - 0.5
+        K_dict['K' + str(i)] = None
+        A_dict['A' + str(i)] = None
+
+    print(weights.keys(), biases.keys())
+
     #####################################
     #                                   #
     #               TODO:               #
     #                                   #
     #####################################
-
+    n, m = X.shape
+    print_every = 500
     for epoch in range(NUM_EPOCHS):
         # Forward Pass
         # TODO:
-
+        A = X
+        # Loop the first four nodes!
+        for i in range(1,len(NODES)-1):
+            K_dict['K'+str(i)] = weights['W'+str(i)].T.dot(A) + biases['B'+str(i)]
+            A_dict['A'+str(i)] = np.maximum(0, K_dict['K'+str(i)])
+        # Finally Node
+        K_Final = weights['W'+str(len(NODES)-1)].T.dot(A) + biases['B'+str(len(NODES)-1)]
+        scores = K_Final
+        # Sigmoid
+        H = 1 / (1 + np.exp(-K_Final))
+        J = (1 / m) * np.sum(-(Y * np.log(H) + (1 - Y) * np.log(1 - H)))
+        if epoch % print_every == 0:
+            print(f'Cost in epoch: {J} ')
+        #Prepare dWi, dBi
+        dW_dict = {}
+        dB_dict = {}
+        for i in range(len(NODES)):
+            dW_dict['dW'+str(i)] = None
+            dB_dict['dB'+str(i)] = None
         # Backward Pass
         # TODO:
+        dK = (1/m)*np.sum(H-Y, axis=0, keepdims= True)
+        dW_dict['dW'+str(len(NODES))] = np.dot(A_dict['A'+str(len(A_dict)-1)], dK.T)
+        dB_dict['dB'+str(len(NODES))] = np.sum(dK, axis= 1, keepdims= True)
+        for i in range(1,len(NODES)-1,-1):
+            dA = np.dot(weights['W'+str(i+1)], dK.T)
+            dK = dA*np.where(K_dict['K'+str(i)] > 0, 1, 0)
+            dW_dict['dW'+str(i)] = np.dot(A_dict['A'+str(i-1)], dK.T)
+            dB_dict['dB'+str(i)] = np.sum(dK, axis = 1, keepdims=True)
 
         # Updates all the weights and biases
         # TODO:
-        pass
+        for i in range(len(NODES)):
+            weights['W' + str(i)] =  weights['W' + str(i)] - ALPHA*dW_dict['dW' + str(i)]
+            biases['B' + str(i)] = weights['B' + str(i)] - ALPHA * dB_dict['dB' + str(i)]
 
     return weights, biases
 
