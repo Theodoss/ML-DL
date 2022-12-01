@@ -198,7 +198,9 @@ class TwoLayerNet(object):
             # of code.                                                              #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            pass
+            np.random.seed(it)
+            selector = np.random.randint(num_train, size=batch_size)
+            X_batch,y_batch = X[selector],y[selector]
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             # Compute cost and gradients using the current minibatch
@@ -213,7 +215,10 @@ class TwoLayerNet(object):
             # lines of code.                                                        #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            pass
+            self.params['W1'] -= learning_rate*grads['W1']*1/batch_size*np.sum(cost)
+            self.params['b1'] -= learning_rate*grads['b1']*1/batch_size*np.sum(cost)
+            self.params['W2'] -= learning_rate*grads['W2']*1/batch_size*np.sum(cost)
+            self.params['b2'] -= learning_rate*grads['b2']*1/batch_size*np.sum(cost)
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             if verbose and it % 100 == 0:
